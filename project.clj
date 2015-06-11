@@ -52,10 +52,10 @@
    :dev {:dependencies [[ring-mock "0.1.5"]
                         [ring/ring-devel "1.3.2"]
                         [pjstadig/humane-test-output "0.7.0"]
+                        [midje "1.6.3"]
                         ]
          :source-paths ["env/dev/clj"]
-         
-         
+         :plugins [[lein-midje "3.1.3"]]
          
          :repl-options {:init-ns ebay.core}
          :injections [(require 'pjstadig.humane-test-output)
