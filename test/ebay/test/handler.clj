@@ -2,7 +2,6 @@
   (:use midje.sweet
         ring.mock.request
         ebay.handler
-        ebay.database.items
         ))
 
 
