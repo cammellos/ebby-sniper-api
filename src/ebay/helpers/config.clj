@@ -12,7 +12,6 @@
       true
       (.mkdirs dir))))
 
-
 (defn- base-dir-for-user [{user-id :id :as user}]
   (str base-dir user-id "/"))
 
@@ -37,5 +36,7 @@
       path)))
 
 (defn delete-item-from-file [{user-id :id :as user} {item-price :price item-id :item-id :as item}]
-  (delete-file (:path (file-path user item)) true))
+  (let [path (:path (file-path user item))]
+    (if (.exists (as-file path))
+      (delete-file path true))))
 

@@ -26,7 +26,7 @@
 
       (facts "it return true on success" 
         (let [user {:id 8} item {:item-id 10 :price 20} 
-              path (ebay.helpers.config/remove-item-from-file user item) ] 
+              path (ebay.helpers.config/save-item-to-file user item) ] 
               (ebay.helpers.config/delete-item-from-file user item) => truthy
              ))
 
