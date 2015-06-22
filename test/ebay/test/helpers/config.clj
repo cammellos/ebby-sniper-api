@@ -2,12 +2,13 @@
   (:use midje.sweet
         ring.mock.request
         )
-  (:import ebay.models.user.User)
-  (:import ebay.models.item.Item)
-  (:require [ebay.helpers.config]))
+  (:require [ebay.helpers.config]
+             [ebay.models.item]
+             [ebay.models.user]
+             ))
 
-(def default-user (User. "username" 8 "password"))
-(def default-item (Item. 10 20))
+(def default-user (ebay.models.user/map->User {:user-id 8 }))
+(def default-item (ebay.models.item/map->Item {:item-id 10 :price 20}))
 
 (facts "the ebay config sniper api" 
   ( facts "about the config object"

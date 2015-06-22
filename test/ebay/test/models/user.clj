@@ -1,10 +1,11 @@
 (ns ebay.test.models.user
   (:use midje.sweet)
-  (:import ebay.models.user.User)
   (:require [ebay.models.user]))
 
+(def default-user (ebay.models.user/map->User {:username "username" :password "password" :user-id 8}))
+
 (facts "about the user model"
-  (let [user (User. "username" 8 "password")]
+  (let [user default-user]
     (facts "it stores the username"
       (:username user) => "username")
     (facts "it stores the user-id"
