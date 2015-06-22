@@ -4,7 +4,12 @@
         [clojure.java.shell :only [sh]]
 ))
 
-(def base-dir "/tmp/esniper/")
+(defrecord Config [root-path])
+
+(defn default-config []
+  (Config. "/tmp/esniper/"))
+
+(def base-dir (:root-path (default-config)))
 
 (defn- mkdirp [path]
   (let [dir (java.io.File. path)]
@@ -12,10 +17,10 @@
       true
       (.mkdirs dir))))
 
-(defn- base-dir-for-user [{user-id :id :as user}]
+(defn- base-dir-for-user [{user-id :user-id :as user}]
   (str base-dir user-id "/"))
 
-(defn- file-path [{user-id :id :as user} {item-price :price item-id :item-id :as item}]
+(defn- file-path [{user-id :user-id :as user} {item-price :price item-id :item-id :as item}]
   (let [ directory (base-dir-for-user user)
          path (str directory item-id ".txt")]
     {:directory directory :path path}))
@@ -35,7 +40,7 @@
       (with-open [wrtr (writer path)] (.write wrtr config-file))
       path)))
 
-(defn delete-item-from-file [{user-id :id :as user} {item-price :price item-id :item-id :as item}]
+(defn delete-item-from-file [{user-id :user-id :as user} {item-price :price item-id :item-id :as item}]
   (let [path (:path (file-path user item))]
     (if (.exists (as-file path))
       (delete-file path true))))
