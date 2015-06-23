@@ -1,7 +1,5 @@
 (ns ebay.test.services.sniper
-  (:use midje.sweet
-        ring.mock.request
-        )
+  (:use midje.sweet)
   (:require [ebay.services.sniper]
              [ebay.models.item]
              [ebay.models.user]))
@@ -16,10 +14,9 @@
     (facts "it retrieves a user by username" 
       (ebay.services.sniper/get-user (:username default-user)) => default-user)
     (facts "it removes a user by username" 
-      (ebay.services.sniper/remove-user (:username default-user)) => default-user)
-    (facts "it edits a user by username" 
-      (let [edited-user (ebay.models.user/map->User {:username "username" :password "new-password"})] 
-        (do
-          ((ebay.services.sniper/edit-user (:username default-user)) => true)
-          ((ebay.services.sniper/get-user (:username default-user)) => edited-user))))))
+      (ebay.services.sniper/remove-user (:username default-user)) => default-user)))
+    ;(facts "it edits a user by username" 
+    ;  (let [edited-user (ebay.models.user/map->User {:username "username" :password "new-password"})] 
+    ;      ((ebay.services.sniper/edit-user (:username default-user)) => true)
+    ;      ((ebay.services.sniper/get-user (:username default-user)) => edited-user)))))
 
