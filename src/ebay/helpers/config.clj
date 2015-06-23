@@ -1,15 +1,11 @@
 (ns ebay.helpers.config
-
+  (:require [ebay.models.config])
   (:use clojure.java.io
-        [clojure.java.shell :only [sh]]
-))
+        [clojure.java.shell :only [sh]]))
 
-(defrecord Config [root-path])
+(def config (ebay.models.config/default-config))
 
-(defn default-config []
-  (Config. "/tmp/esniper/"))
-
-(def base-dir (:root-path (default-config)))
+(def base-dir (:auctions-path config))
 
 (defn- mkdirp [path]
   (let [dir (java.io.File. path)]
