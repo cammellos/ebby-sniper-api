@@ -1,4 +1,4 @@
-(ns ebay.helpers.config
+(ns ebay.helpers.esniper
   (:require [ebay.models.config])
   (:use clojure.java.io
         [clojure.java.shell :only [sh]]))
@@ -21,7 +21,7 @@
          path (str directory item-id ".txt")]
     {:directory directory :path path}))
 
-(defn- generate-config-file [{:keys [item-id price]}]
+(defn- generate-item-config-file [{:keys [item-id price]}]
   (str item-id " " price "\n"))
 
 (defn delete-recursively []
@@ -29,7 +29,7 @@
     (sh  "rm" "-r" base-dir)))
 
 (defn save-item-to-file [user item]
-  (let [ config-file (generate-config-file item)
+  (let [ config-file (generate-item-config-file item)
         {:keys [directory path]} (file-path user item)]
     (do 
       (mkdirp directory)
