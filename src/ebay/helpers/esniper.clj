@@ -13,10 +13,10 @@
       true
       (.mkdirs dir))))
 
-(defn- base-dir-for-user [{user-id :user-id :as user}]
-  (str base-dir user-id "/"))
+(defn- base-dir-for-user [{username :username :as user}]
+  (str base-dir (digest/md5 username) "/items/"))
 
-(defn- file-path [{user-id :user-id :as user} {item-price :price item-id :item-id :as item}]
+(defn- file-path [{username :username :as user} {item-price :price item-id :item-id :as item}]
   (let [ directory (base-dir-for-user user)
          path (str directory item-id ".txt")]
     {:directory directory :path path}))
@@ -36,7 +36,7 @@
       (with-open [wrtr (writer path)] (.write wrtr config-file))
       path)))
 
-(defn delete-item-from-file [{user-id :user-id :as user} {item-price :price item-id :item-id :as item}]
+(defn delete-item-from-file [{username :username :as user} {item-price :price item-id :item-id :as item}]
   (let [path (:path (file-path user item))]
     (if (.exists (as-file path))
       (delete-file path true))))
