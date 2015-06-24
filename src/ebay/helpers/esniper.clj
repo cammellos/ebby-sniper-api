@@ -3,7 +3,8 @@
             [ebay.models.user]
             [ebay.models.item]
             [digest])
-  (:use clojure.java.io))
+  (:use [clojure.java.io]
+        [clojure.java.shell :only [sh]]))
 
 (def ^:private base-dir (:auctions-path (ebay.models.config/default-config)))
 
@@ -11,6 +12,10 @@
   (let [dir (java.io.File. path)]
     (when-not (.exists dir)
       (.mkdirs dir))))
+
+(defn- delete-recursively [directory]
+    (:exit (sh  "rm" "-r" directory)))
+
 
 (defn- base-dir-for-user [{username :username}]
   (str base-dir (digest/md5 username) "/"))
@@ -35,7 +40,7 @@
       (.write wrtr config-file)))
   path)
 
-(defmulti config-file-for (fn [object] (class object)))
+(defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
 (defmethod config-file-for ebay.models.user.User
   [{:keys [username password]}]
@@ -46,7 +51,7 @@
   (str item-id " " price "\n"))
 
 
-(defn save-to-file 
+(defn save
   "Saves user or items to an esniper config file"
   ([user]
     (let [config-file (config-file-for user)
@@ -57,8 +62,14 @@
          {:keys [directory path]} (file-path user item)]
       (write-config-file directory path config-file))))
 
-(defn delete-item-from-file [{username :username :as user} {item-price :price item-id :item-id :as item}]
+(defn delete
+  "Removes user or items config"
+  ([user]
+    (let [path (base-dir-for-user user)]
+      (when (.exists (as-file path))
+        (delete-recursively path))))
+  ([user item]
   (let [path (:path (file-path user item))]
-    (if (.exists (as-file path))
-      (delete-file path true))))
+    (when (.exists (as-file path))
+      (delete-file path true)))))
 
