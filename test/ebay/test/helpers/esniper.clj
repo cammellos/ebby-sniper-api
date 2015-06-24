@@ -12,6 +12,18 @@
 
 (facts "the ebay config sniper api" 
   (with-state-changes [(after :facts (ebay.helpers.esniper/delete-recursively))]
+    (facts "about save-user-to-file"
+      (facts "it returns a filepath" 
+        (let [user default-user ] 
+          (ebay.helpers.esniper/save-user-to-file user) => (str "/tmp/esniper/auctions/" username-digest "/config.txt"))
+      (facts "it persists the user configuration file" 
+        (let [user default-user
+              path (ebay.helpers.esniper/save-user-to-file user) ] 
+          (.exists (clojure.java.io/as-file path)) => true))
+      (facts "creates a valid user config file" 
+        (let [user default-user 
+              path (ebay.helpers.esniper/save-user-to-file user) ] 
+              (slurp path) => "username = username\npassword = password\nseconds = 10"))))
     (facts "about save-item-to-file"
       (facts "it returns a filepath" 
         (let [user default-user item default-item ] 
