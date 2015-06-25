@@ -53,7 +53,7 @@
         (facts "it return true on success" 
           (let [user default-user item default-item 
                 path (ebay.helpers.esniper/save user item) ] 
-                (ebay.helpers.esniper/delete user) => truthy))
+                (ebay.helpers.esniper/delete user) => true))
         (facts "it return false if file does not exists" 
           (let [user default-user item default-item 
                 path (str "/tmp/esniper/auctions/" username-digest "/items/10.txt") ] 
@@ -68,7 +68,7 @@
         (facts "it return true on success" 
           (let [user default-user item default-item 
                 path (ebay.helpers.esniper/save user item) ] 
-                (ebay.helpers.esniper/delete user item) => truthy))
+                (ebay.helpers.esniper/delete user item) => true))
         (facts "it return false if file does not exists" 
           (let [user default-user item default-item 
                 path (str "/tmp/esniper/auctions/" username-digest "/items/10.txt") ] 

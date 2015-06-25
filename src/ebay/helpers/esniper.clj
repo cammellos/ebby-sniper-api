@@ -14,7 +14,7 @@
       (.mkdirs dir))))
 
 (defn- delete-recursively [directory]
-    (:exit (sh  "rm" "-r" directory)))
+    (if (= (:exit (sh  "rm" "-r" directory)) 0) true false))
 
 
 (defn- base-dir-for-user [{username :username}]
