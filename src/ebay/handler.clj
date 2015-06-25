@@ -1,6 +1,7 @@
 (ns ebay.handler
   (:require [compojure.core :refer [defroutes routes wrap-routes]]
-            [ebay.routes.home :refer [home-routes]]
+            [ebay.routes.users :refer [users-routes]]
+            [ebay.routes.items :refer [items-routes]]
             
             [ebay.middleware :as middleware]
             [ebay.session :as session]
@@ -67,6 +68,7 @@
 (def app
   (-> (routes
         
-        (wrap-routes home-routes middleware/wrap-csrf)
+        (wrap-routes users-routes middleware/wrap-csrf)
+        (wrap-routes items-routes middleware/wrap-csrf)
         base-routes)
       middleware/wrap-base))

@@ -36,13 +36,13 @@
           (ebay.services.sniper/edit updated-user) => true)))
     (facts "about items"
       (facts "it adds a item" 
-        (ebay.services.sniper/add default-user default-item) => true)
+        (ebay.services.sniper/save default-user default-item) => true)
       (facts "it edit the item given a username and item" 
         (do
-          (ebay.services.sniper/add default-user default-item)
+          (ebay.services.sniper/save default-user default-item)
           (ebay.services.sniper/edit default-user updated-item ) => true))
       (facts "it deletes an item by username and item-id" 
         (do
-          (ebay.services.sniper/add default-user default-item)
+          (ebay.services.sniper/save default-user default-item)
           (ebay.services.sniper/delete default-user default-item) => true)))))
 
