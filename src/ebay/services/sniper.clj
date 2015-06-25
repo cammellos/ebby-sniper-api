@@ -2,7 +2,7 @@
   (:require [ebay.helpers.esniper]))
 
 
-(defn add 
+(defn save
   ([user]
     (boolean (ebay.helpers.esniper/save user)))
   ([user item]
@@ -15,6 +15,8 @@
     (ebay.helpers.esniper/delete user item)))
 
 (defn edit 
-  ([user])
-  ([user item]))
+  ([user]
+    (boolean (ebay.helpers.esniper/edit user)))
+  ([user item]
+    (boolean (ebay.helpers.esniper/edit user))))
 

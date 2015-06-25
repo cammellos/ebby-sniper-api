@@ -44,6 +44,8 @@
 (defn- valid-user? [{username :username password :password}]
   (not (or (empty? password) (empty? username))))
 
+(defn- user-exists? [user]
+  (.exists (as-file (base-dir-for-user user))))
 
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
@@ -72,12 +74,11 @@
 (defn delete
   "Removes user or items config"
   ([user]
-    (if (valid-user? user)
+    (if (and (valid-user? user) (user-exists? user))
       (let [path (base-dir-for-user user)]
-        (when (.exists (as-file path))
-          (delete-recursively path))) false))
+          (delete-recursively path)) false))
   ([user item]
-    (if (valid-user? user)
+    (if (and (valid-user? user) (user-exists? user))
       (let [path (:path (file-path user item))]
         (when (.exists (as-file path))
           (delete-file path true))) false)))
@@ -85,10 +86,12 @@
 (defn edit
   "Edits the user or items config"
   ([user]
-   (do
-     (delete user)
-     (save user)))
+   (if (user-exists? user)
+     (do
+       (delete user)
+       (save user)) false))
   ([user item]
-    (do
-      (delete user item)
-      (save user item))))
+    (if (user-exists? user)
+      (do
+        (delete user item)
+        (save user item)) false)))

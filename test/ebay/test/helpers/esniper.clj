@@ -18,6 +18,7 @@
 
 (def default-user (ebay.models.user/map->User {:username "username" :password "password"}))
 (def updated-user (ebay.models.user/map->User {:username "username" :password "newpassword"}))
+(def non-existing-user (ebay.models.user/map->User {:username "non-existing" :password "newpassword"}))
 (def invalid-user (ebay.models.user/map->User {:username "" :password "newpassword"}))
 (def invalid-password-user (ebay.models.user/map->User {:username "username" :password ""}))
 (def default-item (ebay.models.item/map->Item {:item-id 10 :price 20}))
@@ -76,19 +77,17 @@
     (facts "about delete"
       (facts "when passed a user"
         (facts "it return true on success" 
-          (let [user default-user item default-item 
-                path (ebay.helpers.esniper/save user item) ] 
-                (ebay.helpers.esniper/delete user) => true))
+          (do 
+            (ebay.helpers.esniper/save default-user default-item)
+            (ebay.helpers.esniper/delete default-user) => true))
         (facts "it return false if file does not exists" 
-          (let [user default-user item default-item 
-                path (str "/tmp/esniper/auctions/" username-digest "/items/10.txt") ] 
-                (ebay.helpers.esniper/delete (assoc user :username "blah") item) => falsey))
+          (ebay.helpers.esniper/delete non-existing-user) => false)
         (facts "it deletes the the user directory and all the files" 
           (let [user default-user item default-item 
                 user-path (ebay.helpers.esniper/save user)  
                 path (ebay.helpers.esniper/save user item)  
                 success (ebay.helpers.esniper/delete user)]
-                  (.exists (clojure.java.io/as-file user-path)) => falsey)))
+                  (.exists (clojure.java.io/as-file user-path)) => false)))
       (facts "when passed an invalid user"
         (facts "it return false" 
           (ebay.helpers.esniper/delete invalid-user) => false))
