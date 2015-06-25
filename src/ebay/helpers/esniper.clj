@@ -8,6 +8,7 @@
 
 (def ^:private base-dir (:auctions-path (ebay.models.config/default-config)))
 
+
 (defn- mkdirp [path]
   (let [dir (java.io.File. path)]
     (when-not (.exists dir)
@@ -40,6 +41,10 @@
       (.write wrtr config-file)))
   path)
 
+(defn- valid-user? [{username :username password :password}]
+  (not (or (empty? password) (empty? username))))
+
+
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
 (defmethod config-file-for ebay.models.user.User
@@ -54,22 +59,36 @@
 (defn save
   "Saves user or items to an esniper config file"
   ([user]
-    (let [config-file (config-file-for user)
-         {:keys [directory path]} (file-path user)]
-      (write-config-file directory path config-file)))
+    (if (valid-user? user)
+      (let [config-file (config-file-for user)
+           {:keys [directory path]} (file-path user)]
+        (write-config-file directory path config-file)) false))
   ([user item]
-    (let [config-file (config-file-for item)
-         {:keys [directory path]} (file-path user item)]
-      (write-config-file directory path config-file))))
+    (if (valid-user? user)
+      (let [config-file (config-file-for item)
+           {:keys [directory path]} (file-path user item)]
+        (write-config-file directory path config-file)) false)))
 
 (defn delete
   "Removes user or items config"
   ([user]
-    (let [path (base-dir-for-user user)]
-      (when (.exists (as-file path))
-        (delete-recursively path))))
+    (if (valid-user? user)
+      (let [path (base-dir-for-user user)]
+        (when (.exists (as-file path))
+          (delete-recursively path))) false))
   ([user item]
-  (let [path (:path (file-path user item))]
-    (when (.exists (as-file path))
-      (delete-file path true)))))
+    (if (valid-user? user)
+      (let [path (:path (file-path user item))]
+        (when (.exists (as-file path))
+          (delete-file path true))) false)))
 
+(defn edit
+  "Edits the user or items config"
+  ([user]
+   (do
+     (delete user)
+     (save user)))
+  ([user item]
+    (do
+      (delete user item)
+      (save user item))))

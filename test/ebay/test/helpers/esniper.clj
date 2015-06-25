@@ -17,6 +17,9 @@
 
 
 (def default-user (ebay.models.user/map->User {:username "username" :password "password"}))
+(def updated-user (ebay.models.user/map->User {:username "username" :password "newpassword"}))
+(def invalid-user (ebay.models.user/map->User {:username "" :password "newpassword"}))
+(def invalid-password-user (ebay.models.user/map->User {:username "username" :password ""}))
 (def default-item (ebay.models.item/map->Item {:item-id 10 :price 20}))
 
 (def username-digest "14c4b06b824ec593239362517f538b29")
@@ -27,7 +30,7 @@
       (facts "when passed a user"
         (facts "it returns a filepath" 
           (let [user default-user ] 
-            (ebay.helpers.esniper/save user) => (str "/tmp/esniper/auctions/" username-digest "/config.txt"))
+            (ebay.helpers.esniper/save user) => (str "/tmp/esniper/auctions/" username-digest "/config.txt")))
         (facts "it persists the user configuration file" 
           (let [user default-user
                 path (ebay.helpers.esniper/save user) ] 
@@ -35,7 +38,13 @@
         (facts "creates a valid user config file" 
           (let [user default-user 
                 path (ebay.helpers.esniper/save user) ] 
-                (slurp path) => "username = username\npassword = password\nseconds = 10"))))
+                (slurp path) => "username = username\npassword = password\nseconds = 10"))
+        (facts "when passed a user with an invalid password"
+          (facts "it return false" 
+            (ebay.helpers.esniper/edit invalid-password-user) => false))
+        (facts "when passed an invalid user"
+          (facts "it return false" 
+            (ebay.helpers.esniper/edit invalid-user) => false)))
       (facts "when passed a user & an item"
         (facts "it returns a filepath" 
           (let [user default-user item default-item ] 
@@ -48,6 +57,22 @@
           (let [user default-user item default-item 
                 path (ebay.helpers.esniper/save user item) ] 
                 (slurp path) => "10 20\n")))))
+    (facts "about edit"
+      (facts "when passed a user"
+        (facts "it edits config file" 
+          (let [user default-user 
+                path (ebay.helpers.esniper/save user) 
+                result (ebay.helpers.esniper/edit updated-user)] 
+                (slurp path) => "username = username\npassword = newpassword\nseconds = 10")))
+      (facts "when passed a user with an invalid password"
+        (facts "it return false" 
+          (ebay.helpers.esniper/edit invalid-password-user) => false))
+      (facts "when passed an invalid user"
+        (facts "it return false" 
+          (ebay.helpers.esniper/edit invalid-user) => false))
+      (facts "when passed a non existing user"
+        (facts "it return false" 
+          (ebay.helpers.esniper/edit updated-user) => false)))
     (facts "about delete"
       (facts "when passed a user"
         (facts "it return true on success" 
@@ -64,6 +89,9 @@
                 path (ebay.helpers.esniper/save user item)  
                 success (ebay.helpers.esniper/delete user)]
                   (.exists (clojure.java.io/as-file user-path)) => falsey)))
+      (facts "when passed an invalid user"
+        (facts "it return false" 
+          (ebay.helpers.esniper/delete invalid-user) => false))
       (facts "when passed a user & an item"
         (facts "it return true on success" 
           (let [user default-user item default-item 
@@ -72,9 +100,9 @@
         (facts "it return false if file does not exists" 
           (let [user default-user item default-item 
                 path (str "/tmp/esniper/auctions/" username-digest "/items/10.txt") ] 
-                (ebay.helpers.esniper/delete user item) => falsey))
+                (ebay.helpers.esniper/delete user item) => false))
         (facts "it deletes the file" 
           (let [user default-user item default-item 
                 path (ebay.helpers.esniper/save user item)  
                 success (ebay.helpers.esniper/delete user item)]
-                  (.exists (clojure.java.io/as-file path)) => falsey))))))
+                  (.exists (clojure.java.io/as-file path)) => false))))))

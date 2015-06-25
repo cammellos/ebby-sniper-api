@@ -8,7 +8,7 @@
   ([user item]
     (boolean (ebay.helpers.esniper/save user item))))
 
-(defn remove
+(defn delete
   ([user]
     (ebay.helpers.esniper/delete user))
   ([user item]

@@ -13,8 +13,8 @@
   (facts "about users"
     (facts "it adds a user" 
       (ebay.services.sniper/add default-user) => true)
-    (facts "it removes a user" 
-      (ebay.services.sniper/remove default-user) => true)
+    (facts "it deletes a user" 
+      (ebay.services.sniper/delete default-user) => true)
     (facts "it edits a user" 
       (ebay.services.sniper/edit updated-user) => true))
   (facts "about items"
@@ -22,6 +22,6 @@
       (ebay.services.sniper/add default-user default-item) => true)
     (facts "it edit the item given a username and item" 
       (ebay.services.sniper/edit default-user updated-item ) => true)
-    (facts "it removes an item by username and item-id" 
-      (ebay.services.sniper/remove default-user default-item) => true)))
+    (facts "it deletes an item by username and item-id" 
+      (ebay.services.sniper/delete default-user default-item) => true)))
 
