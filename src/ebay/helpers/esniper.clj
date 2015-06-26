@@ -41,11 +41,19 @@
       (.write wrtr config-file)))
   path)
 
-(defn- valid-user? [{username :username password :password}]
-  (not (or (empty? password) (empty? username))))
+(defn valid? 
+  ([{username :username password :password}]
+    (not (or (empty? password) (empty? username))))
+  
+  ([user {item-id :item-id price :price}]
+   (and (valid? user) (not (or (empty? item-id) (empty? price))))))
 
-(defn- user-exists? [user]
+
+(defn exists? 
+  ([user]
   (.exists (as-file (base-dir-for-user user))))
+  ([user item]
+  (and (exists? user) (.exists (as-file (:path (file-path user item)))))))
 
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
@@ -61,12 +69,12 @@
 (defn save
   "Saves user or items to an esniper config file"
   ([user]
-    (if (valid-user? user)
+    (if (valid? user)
       (let [config-file (config-file-for user)
            {:keys [directory path]} (file-path user)]
         (write-config-file directory path config-file)) false))
   ([user item]
-    (if (valid-user? user)
+    (if (valid? user)
       (let [config-file (config-file-for item)
            {:keys [directory path]} (file-path user item)]
         (write-config-file directory path config-file)) false)))
@@ -74,11 +82,11 @@
 (defn delete
   "Removes user or items config"
   ([user]
-    (if (and (valid-user? user) (user-exists? user))
+    (if (exists? user)
       (let [path (base-dir-for-user user)]
-          (delete-recursively path)) false))
+        (delete-recursively path)) false))
   ([user item]
-    (if (and (valid-user? user) (user-exists? user))
+    (if (exists? user)
       (let [path (:path (file-path user item))]
         (when (.exists (as-file path))
           (delete-file path true))) false)))
@@ -86,12 +94,12 @@
 (defn edit
   "Edits the user or items config"
   ([user]
-   (if (user-exists? user)
+   (if (exists? user)
      (do
        (delete user)
        (save user)) false))
   ([user item]
-    (if (user-exists? user)
+    (if (exists? user)
       (do
         (delete user item)
         (save user item)) false)))

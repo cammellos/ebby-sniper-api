@@ -8,10 +8,24 @@
 
 (defroutes users-routes
   (POST "/users" [username password] 
-    (if (ebay.services.sniper/save (ebay.models.user/map->User {:username username :password password})) {:status 201 :body (str "/users/" username)} {:status 406}))
+    (let [user (ebay.models.user/map->User {:username username :password password})]
+      (cond 
+        (ebay.services.sniper/invalid? user) {:status 406}
+        (ebay.services.sniper/exists? user) {:status 200 :body (str "/users/" username)}
+        (ebay.services.sniper/save user) {:status 201 :body (str "/users/" username)}
+        :else {:status 500})))
   (PUT "/users/:username" [username password] 
-    (if (ebay.services.sniper/edit (ebay.models.user/map->User {:username username :password password})) {:status 200} {:status 406}))
+    (let [user (ebay.models.user/map->User {:username username :password password})]
+      (cond
+        (not (ebay.services.sniper/exists? user)) {:status 404}
+        (ebay.services.sniper/edit user) {:status 200}
+        :else {:status 406})))
   (DELETE "/users/:username" [username] 
-    (if (ebay.services.sniper/delete (ebay.models.user/map->User {:username username})) {:status 200} {:status 404})))
+    (let [user (ebay.models.user/map->User {:username username})]
+      (cond
+        (not (ebay.services.sniper/exists? user)) {:status 404}
+        (ebay.services.sniper/delete user) {:status 200}))))
+
+
 
 

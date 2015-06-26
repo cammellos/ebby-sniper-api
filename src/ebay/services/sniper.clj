@@ -17,5 +17,23 @@
   ([user]
     (boolean (ebay.helpers.esniper/edit user)))
   ([user item]
-    (boolean (ebay.helpers.esniper/edit user))))
+    (boolean (ebay.helpers.esniper/edit user item))))
+
+(defn exists?
+  ([user]
+    (boolean (ebay.helpers.esniper/exists? user)))
+  ([user item]
+    (boolean (ebay.helpers.esniper/exists? user item))))
+
+(defn valid?
+  ([user]
+    (boolean (ebay.helpers.esniper/valid? user)))
+  ([user item]
+    (boolean (ebay.helpers.esniper/valid? user item))))
+
+(defn invalid?
+  ([user]
+    (not (valid? user)))
+  ([user item]
+    (not (valid? user item))))
 
