@@ -1,19 +1,15 @@
-# ebay
+# Routes
 
-FIXME
+`POST /users`
+Params `username` and `password`
 
-## Prerequisites
+`PUT /users/{username}`
+Params `password`
 
-You will need [Leiningen][1] 2.0 or above installed.
-
-[1]: https://github.com/technomancy/leiningen
+`DELETE /users/{username}`
 
 ## Running
 
 To start a web server for the application, run:
 
     lein ring server
-
-## License
-
-Copyright © 2015 FIXME
