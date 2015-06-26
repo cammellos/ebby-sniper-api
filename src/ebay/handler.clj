@@ -67,8 +67,7 @@
 
 (def app
   (-> (routes
-        
-        (wrap-routes users-routes middleware/wrap-csrf)
-        (wrap-routes items-routes middleware/wrap-csrf)
+        users-routes
+        items-routes
         base-routes)
       middleware/wrap-base))

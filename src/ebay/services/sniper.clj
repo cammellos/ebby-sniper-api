@@ -1,7 +1,6 @@
 (ns ebay.services.sniper
   (:require [ebay.helpers.esniper]))
 
-
 (defn save
   ([user]
     (boolean (ebay.helpers.esniper/save user)))
