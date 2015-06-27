@@ -3,34 +3,26 @@
             [ebay.models.user]
             [ebay.models.item]
             [digest])
-  (:use [clojure.java.io]
+  (:use 
+        [ebay.helpers.filesystem]
+        [clojure.java.io]
         [clojure.java.shell :only [sh]]))
 
 (def ^:private base-dir (:auctions-path (ebay.models.config/default-config)))
 
-
-(defn- mkdirp [path]
-  (let [dir (java.io.File. path)]
-    (when-not (.exists dir)
-      (.mkdirs dir))))
-
-(defn- delete-recursively [directory]
-    (if (= (:exit (sh  "rm" "-r" directory)) 0) true false))
-
-
-(defn- base-dir-for-user [{username :username}]
-  (str base-dir (digest/md5 username) "/"))
-
-(defn- base-dir-for-user-items [user]
-  (str (base-dir-for-user user) "items/"))
+(defn- base-dir-for 
+  ([{username :username}]
+    (str base-dir (digest/md5 username) "/"))
+  ([user item]
+    (str (base-dir-for user) "items/")))
 
 (defn- file-path 
   ([user]
-    (let [directory (base-dir-for-user user)
+    (let [directory (base-dir-for user)
           path (str directory "config.txt")]
       {:directory directory :path path}))
-  ([user {item-id :item-id}]
-    (let [directory (base-dir-for-user-items user)
+  ([user {:keys [item-id] :as item}]
+    (let [directory (base-dir-for user item)
           path (str directory item-id ".txt")]
       {:directory directory :path path})))
 
@@ -41,19 +33,27 @@
       (.write wrtr config-file)))
   path)
 
-(defn valid? 
-  ([{username :username password :password}]
-    (not (or (empty? password) (empty? username))))
-  
-  ([user {item-id :item-id price :price}]
-   (and (valid? user) (not (or (empty? item-id) (empty? price))))))
-
-
 (defn exists? 
   ([user]
-  (.exists (as-file (base-dir-for-user user))))
+  (.exists (as-file (base-dir-for user))))
   ([user item]
   (and (exists? user) (.exists (as-file (:path (file-path user item)))))))
+
+
+(defn- with-existing
+  ([elements function]
+    (cond 
+      (every? exists? elements) (function)
+      :else false)))
+
+
+(defn valid? 
+  ([{username :username password :password}]
+    (and (not-empty password) (not-empty username)))
+  ([user {item-id :item-id price :price}]
+   (and (valid? user) (and (not-empty item-id) (not-empty price)))))
+
+
 
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
@@ -79,27 +79,18 @@
            {:keys [directory path]} (file-path user item)]
         (write-config-file directory path config-file)) false)))
 
+
+
 (defn delete
   "Removes user or items config"
   ([user]
-    (if (exists? user)
-      (let [path (base-dir-for-user user)]
-        (delete-recursively path)) false))
+    (with-existing [user] #(delete-recursively (base-dir-for user))))
   ([user item]
-    (if (exists? user)
-      (let [path (:path (file-path user item))]
-        (when (.exists (as-file path))
-          (delete-file path true))) false)))
+    (with-existing [user item] #(delete-file (as-file (:path (file-path user item))) true))))
 
 (defn edit
   "Edits the user or items config"
-  ([user]
-   (if (exists? user)
-     (do
-       (delete user)
-       (save user)) false))
-  ([user item]
-    (if (exists? user)
-      (do
-        (delete user item)
-        (save user item)) false)))
+  [& args]
+   (with-existing args
+     #(do (apply delete args) (apply save args))))
+
