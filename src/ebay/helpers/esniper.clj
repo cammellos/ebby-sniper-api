@@ -32,6 +32,11 @@
       (.write wrtr config-file)))
   path)
 
+(defn- with-condition [check elements success]
+  (cond 
+    (apply check elements) (success)
+    :else false))
+
 (defn exists? 
   ([user]
   (.exists (as-file (base-dir-for user))))
@@ -39,9 +44,7 @@
   (and (exists? user) (.exists (as-file (:path (file-path user item)))))))
 
 (defn- with-existing [elements function]
-  (cond 
-    (every? exists? elements) (function)
-    :else false))
+  (with-condition exists? elements function))
 
 (defn valid? 
   ([{username :username password :password}]
@@ -50,10 +53,7 @@
    (and (valid? user) (and (not-empty item-id) (and (number? price) (pos? price))))))
 
 (defn- with-valid [elements function]
-  (cond 
-    (apply valid? elements) (function)
-    :else false))
-
+  (with-condition valid? elements function))
 
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
 
