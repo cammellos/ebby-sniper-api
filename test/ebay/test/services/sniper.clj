@@ -20,9 +20,9 @@
 (def updated-user (ebay.models.user/map->User {:username "username" :password "newpassord"}))
 (def no-username-user (ebay.models.user/map->User {:password "newpassord"}))
 (def no-password-user (ebay.models.user/map->User {:username "username"}))
-(def default-item (ebay.models.item/map->Item {:item-id 10 :price 20}))
-(def updated-item (ebay.models.item/map->Item {:item-id 10 :price 30}))
-(def non-existing-item (ebay.models.item/map->Item {:item-id 10 :price 30}))
+(def default-item (ebay.models.item/map->Item {:item-id "10" :price 20}))
+(def updated-item (ebay.models.item/map->Item {:item-id "10" :price 30}))
+(def non-existing-item (ebay.models.item/map->Item {:item-id "10" :price 30}))
 
 (with-state-changes [(after :facts (delete-recursively))]
   (facts "the sniper api"

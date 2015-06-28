@@ -5,8 +5,7 @@
             [digest])
   (:use 
         [ebay.helpers.filesystem]
-        [clojure.java.io]
-        [clojure.java.shell :only [sh]]))
+        [clojure.java.io]))
 
 (def ^:private base-dir (:auctions-path (ebay.models.config/default-config)))
 
@@ -39,20 +38,21 @@
   ([user item]
   (and (exists? user) (.exists (as-file (:path (file-path user item)))))))
 
-
-(defn- with-existing
-  ([elements function]
-    (cond 
-      (every? exists? elements) (function)
-      :else false)))
-
+(defn- with-existing [elements function]
+  (cond 
+    (every? exists? elements) (function)
+    :else false))
 
 (defn valid? 
   ([{username :username password :password}]
     (and (not-empty password) (not-empty username)))
   ([user {item-id :item-id price :price}]
-   (and (valid? user) (and (not-empty item-id) (not-empty price)))))
+   (and (valid? user) (and (not-empty item-id) (and (number? price) (pos? price))))))
 
+(defn- with-valid [elements function]
+  (cond 
+    (apply valid? elements) (function)
+    :else false))
 
 
 (defmulti  #^{:private true} config-file-for (fn [object] (class object)))
@@ -69,16 +69,15 @@
 (defn save
   "Saves user or items to an esniper config file"
   ([user]
-    (if (valid? user)
-      (let [config-file (config-file-for user)
+    (with-valid [user]
+      #(let [config-file (config-file-for user)
            {:keys [directory path]} (file-path user)]
-        (write-config-file directory path config-file)) false))
+        (write-config-file directory path config-file))))
   ([user item]
-    (if (valid? user)
-      (let [config-file (config-file-for item)
+    (with-valid [user item]
+      #(let [config-file (config-file-for item)
            {:keys [directory path]} (file-path user item)]
-        (write-config-file directory path config-file)) false)))
-
+        (write-config-file directory path config-file)))))
 
 
 (defn delete

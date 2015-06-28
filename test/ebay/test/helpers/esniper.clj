@@ -14,7 +14,7 @@
 (def non-existing-user (ebay.models.user/map->User {:username "non-existing" :password "newpassword"}))
 (def invalid-user (ebay.models.user/map->User {:username "" :password "newpassword"}))
 (def invalid-password-user (ebay.models.user/map->User {:username "username" :password ""}))
-(def default-item (ebay.models.item/map->Item {:item-id 10 :price 20}))
+(def default-item (ebay.models.item/map->Item {:item-id "10" :price 20}))
 
 (def username-digest "14c4b06b824ec593239362517f538b29")
 
