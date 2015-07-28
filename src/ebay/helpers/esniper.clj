@@ -50,7 +50,9 @@
   ([{username :username password :password}]
     (and (not-empty password) (not-empty username)))
   ([user {item-id :item-id price :price}]
-   (and (valid? user) (and (not-empty item-id) (and (number? price) (pos? price))))))
+   (with-existing
+     [user]
+     #(and (not-empty item-id) (and (number? price) (pos? price))))))
 
 (defn- with-valid [elements function]
   (with-condition valid? elements function))

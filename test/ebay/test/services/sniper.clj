@@ -21,6 +21,8 @@
 (def no-username-user (ebay.models.user/map->User {:password "newpassord"}))
 (def no-password-user (ebay.models.user/map->User {:username "username"}))
 (def default-item (ebay.models.item/map->Item {:item-id "10" :price 20}))
+(def no-price-item (ebay.models.item/map->Item {:item-id "10"}))
+(def no-item-id-item (ebay.models.item/map->Item {:price 20}))
 (def updated-item (ebay.models.item/map->Item {:item-id "10" :price 30}))
 (def non-existing-item (ebay.models.item/map->Item {:item-id "10" :price 30}))
 
@@ -50,14 +52,17 @@
           (ebay.services.sniper/save default-user)
           (ebay.services.sniper/edit updated-user) => true)))
     (facts "about items"
-      (facts "it adds a item" 
+      (fact "it adds a item"
+        (ebay.services.sniper/save default-user)
         (ebay.services.sniper/save default-user default-item) => true)
       (facts "it edit the item given a username and item" 
         (do
+          (ebay.services.sniper/save default-user)
           (ebay.services.sniper/save default-user default-item)
           (ebay.services.sniper/edit default-user updated-item ) => true))
       (facts "it returns true if the user & items exists"
          (do
+          (ebay.services.sniper/save default-user)
           (ebay.services.sniper/save default-user default-item)
           (ebay.services.sniper/exists? default-user default-item) => true))
       (facts "it returns false if the user does not exists"
@@ -65,8 +70,20 @@
       (facts "it returns false if the item does not exists"
           (ebay.services.sniper/save default-user)
           (ebay.services.sniper/exists? default-user non-existing-item) => false)
+      (facts "it returns false if the user does not exists"
+          (ebay.services.sniper/valid? default-user default-item) => false)
+      (facts "it returns false if the item does not have a price"
+          (ebay.services.sniper/save default-user)
+          (ebay.services.sniper/valid? default-user no-price-item) => false)
+      (facts "it returns false if the item does not have a item id"
+          (ebay.services.sniper/save default-user)
+          (ebay.services.sniper/valid? default-user no-item-id-item) => false)
+      (facts "it returns true if the item is valid"
+          (ebay.services.sniper/save default-user)
+          (ebay.services.sniper/valid? default-user default-item) => true)
       (facts "it deletes an item by username and item-id" 
         (do
+          (ebay.services.sniper/save default-user)
           (ebay.services.sniper/save default-user default-item)
           (ebay.services.sniper/delete default-user default-item) => true)))))
 

@@ -35,9 +35,10 @@
         "it return false" 
           (ebay.helpers.esniper/edit invalid-user) => false
       "when passed a user & an item"
-        "it returns a filepath" 
-          (ebay.helpers.esniper/save default-user default-item) => (str "/tmp/esniper/auctions/" username-digest "/items/10.txt")
-        "it persists the configuration file" 
+        "it returns a filepath"
+         (ebay.helpers.esniper/save default-user)
+         (ebay.helpers.esniper/save default-user default-item) => (str "/tmp/esniper/auctions/" username-digest "/items/10.txt")
+        "it persists the configuration file"
           (.exists (clojure.java.io/as-file (ebay.helpers.esniper/save default-user default-item))) => true
         "it creates a valid config file" 
           (slurp (ebay.helpers.esniper/save default-user default-item)) => "10 20\n"
@@ -57,32 +58,34 @@
           (ebay.helpers.esniper/edit updated-user) => false)))
     (facts "about delete"
       (facts "when passed a user"
-        (facts "it return true on success" 
+        (fact "it return true on success"
           (do 
+            (ebay.helpers.esniper/save default-user)
             (ebay.helpers.esniper/save default-user default-item)
             (ebay.helpers.esniper/delete default-user) => true))
-        (facts "it return false if file does not exists" 
+        (fact "it return false if file does not exists"
           (ebay.helpers.esniper/delete non-existing-user) => false)
-        (facts "it deletes the the user directory and all the files" 
+        (fact "it deletes the the user directory and all the files"
           (let [user default-user item default-item 
                 user-path (ebay.helpers.esniper/save user)  
                 path (ebay.helpers.esniper/save user item)  
                 success (ebay.helpers.esniper/delete user)]
                   (.exists (clojure.java.io/as-file user-path)) => false)))
       (facts "when passed an invalid user"
-        (facts "it return false" 
+        (fact "it return false"
           (ebay.helpers.esniper/delete invalid-user) => false))
       (facts "when passed a user & an item"
-        (facts "it return true on success" 
-          (let [user default-user item default-item 
-                path (ebay.helpers.esniper/save user item) ] 
-                (ebay.helpers.esniper/delete user item) => true))
-        (facts "it return false if file does not exists" 
+        (fact "it return true on success"
+          (let [
+                user-path (ebay.helpers.esniper/save default-user)
+                path (ebay.helpers.esniper/save default-user default-item) ] 
+                (ebay.helpers.esniper/delete default-user default-item) => true))
+        (fact "it return false if file does not exists"
           (let [user default-user item default-item 
                 path (str "/tmp/esniper/auctions/" username-digest "/items/10.txt") ] 
                 (ebay.helpers.esniper/delete user item) => false))
-        (facts "it deletes the file" 
-          (let [user default-user item default-item 
-                path (ebay.helpers.esniper/save user item)  
-                success (ebay.helpers.esniper/delete user item)]
-                  (.exists (clojure.java.io/as-file path)) => false))))))
+        (fact "it deletes the file"
+          (let [ user-path (ebay.helpers.esniper/save default-user)  
+                 path (ebay.helpers.esniper/save default-user default-item)  
+                 success (ebay.helpers.esniper/delete default-user default-item)]
+                   (.exists (clojure.java.io/as-file path)) => false))))))

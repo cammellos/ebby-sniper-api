@@ -6,7 +6,7 @@
 
 
 (with-state-changes [(after :facts (delete-recursively))]
-  (facts "the users api" 
+  (facts "the items api" 
     (facts "POST /users/{id}/items" 
       (facts "when sending an invalid item it returns 406"
         (do 
